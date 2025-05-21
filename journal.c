@@ -1,17 +1,26 @@
-// Simplified Arduino Alternator Cutoff
-int throttlePin = A0;
-int relayPin = 8;
+#include <stdio.h>
+#include <string.h>
 
-void setup() {
-  pinMode(relayPin, OUTPUT);
-  digitalWrite(relayPin, HIGH); // Default ON
+#define KEY 0xAA
+#define MAX_ENTRY 512
+
+void encryptDecrypt(char *data) {
+    for (int i = 0; i < strlen(data); i++)
+        data[i] ^= KEY;
 }
 
-void loop() {
-  int throttle = analogRead(throttlePin);
-  if (throttle < 100) {  // Coasting
-    digitalWrite(relayPin, HIGH);  // Charge
-  } else {
-    digitalWrite(relayPin, LOW);   // Cut
-  }
+int main() {
+    FILE *file;
+    char entry[MAX_ENTRY];
+
+    printf("Enter your journal entry: ");
+    fgets(entry, MAX_ENTRY, stdin);
+    encryptDecrypt(entry);
+
+    file = fopen("journal.dat", "ab");
+    fwrite(entry, sizeof(char), strlen(entry), file);
+    fclose(file);
+
+    printf("Entry saved securely.\n");
+    return 0;
 }
